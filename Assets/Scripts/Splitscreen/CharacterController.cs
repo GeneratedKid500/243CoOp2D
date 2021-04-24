@@ -17,6 +17,12 @@ public class CharacterController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
+    private void Start()
+    {
+        vert = 0;
+        horz = 0;
+    }
+
     // Update is called once per frame
     void Update()
     {
