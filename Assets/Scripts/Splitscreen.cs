@@ -10,94 +10,72 @@ public class Splitscreen : MonoBehaviour
 
     public GameObject[] players;
 
-    public GameObject[] camBounds;
-
-    Plane[] planes;
-    float distBetween;
+    Vector2 distBetween;
     bool xBorder1, yBorder1;
     bool xBorder2, yBorder2;
 
     void Start()
     {
-        planes = GeometryUtility.CalculateFrustumPlanes(cameras[0]);
-        for (int i = 0; i < 4; ++i)
-        {
-            camBounds[i].transform.position = -planes[i].normal * planes[i].distance;
-            camBounds[i].transform.rotation = Quaternion.FromToRotation(Vector3.up, planes[i].normal);
-        }
+
     }
 
     void Update()
     {
-        distBetween = Vector2.Distance(players[0].transform.position, players[1].transform.position);
+        Vector3 play1pos = players[0].transform.position;
+        Vector3 play2pos = players[1].transform.position;
 
-        for (int i = 0; i < 4; ++i)
-        {
-            Debug.Log(camBounds[i].transform.localPosition + " " + i);
-        }
+        distBetween = new Vector2(play1pos.x - play2pos.x, play1pos.y - play2pos.y);
     }
 
     void LateUpdate()
     {
-        IsOnScreen();
+        cameras[0].transform.position = new Vector3(players[0].transform.position.x - distBetween.x/2, players[0].transform.position.y - distBetween.y/2, -10);
 
-        //cameras[0].transform.position = new Vector3(players[0].transform.position.x, players[0].transform.position.y, -10);
+        isOnScreen();
 
         if (xBorder1 && yBorder1 && xBorder2 && yBorder2)
-        {
             CameraSwitch(true);
-        }
         else
-        {
             CameraSwitch(false);
-        }
 
     }
 
-    void IsOnScreen()
+    void isOnScreen()
     {
-        foreach (GameObject plane in camBounds)
+        foreach(GameObject player in players)
         {
-            foreach (GameObject player in players)
+            if (cameras[0].WorldToViewportPoint(player.transform.position).y < 0 || cameras[0].WorldToViewportPoint(player.transform.position).y > 1)
             {
-                if (Mathf.Abs(plane.transform.position.x) > Mathf.Abs(plane.transform.position.y))
-                {
-                    if (Mathf.Abs(player.transform.position.x) > Mathf.Abs(plane.transform.localPosition.x))
-                    {
-                        //Debug.Log("Player Outside of X border");
-                        if (player == players[0])
-                            xBorder1 = false;
-                        else
-                            xBorder2 = false;
-                    }
-                    else
-                    {
-                        //Debug.Log("Player inside of X border");
-                        if (player == players[0])
-                            xBorder1 = true;
-                        else
-                            xBorder2 = true;
-                    }
-                }
+                //Debug.Log("Player Outside of X border");
+                if (player == players[0])
+                    xBorder1 = false;
                 else
-                {
-                    if (Mathf.Abs(player.transform.position.y) > Mathf.Abs(plane.transform.localPosition.y))
-                    {
-                        //Debug.Log("Player Outside of Y border");
-                        if (player == players[0])
-                            yBorder1 = false;
-                        else
-                            yBorder2 = false;
-                    }
-                    else
-                    {
-                        //Debug.Log("Player inside of Y border");
-                        if (player == players[0])
-                            yBorder1 = true;
-                        else
-                            yBorder2 = true;
-                    }
-                }
+                    xBorder2 = false;
+            }
+            else
+            {
+                //Debug.Log("Player inside of X border");
+                if (player == players[0])
+                    xBorder1 = true;
+                else
+                    xBorder2 = true;
+            }
+
+            if (cameras[0].WorldToViewportPoint(player.transform.position).x < 0 || cameras[0].WorldToViewportPoint(player.transform.position).x > 1)
+            {
+                //Debug.Log("Player Outside of Y border");
+                if (player == players[0])
+                    yBorder1 = false;
+                else
+                    yBorder2 = false;
+            }
+            else
+            {
+                //Debug.Log("Player inside of Y border");
+                if (player == players[0])
+                    yBorder1 = true;
+                else
+                    yBorder2 = true;
             }
         }
     }
