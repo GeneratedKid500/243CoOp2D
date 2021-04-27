@@ -4,19 +4,19 @@ using UnityEngine;
 
 public class EnemyBulletScript : MonoBehaviour
 {
-    public GameObject player;
-    public Vector2 startPosition;
-    public Vector2 midPositionA;
-    public Vector2 midPositionB;
-    public Vector2 playerPosition;
-    public Vector2[] positions;
-    public float curvePoints;
+    GameObject player;
+    Vector2 startPosition;
+    Vector2 midPositionA;
+    Vector2 midPositionB;
+    Vector2 playerPosition;
+    Vector2[] positions;
+    float curvePoints;
     // Start is called before the first frame update
     void Start()
     {
         curvePoints = 70f;
         positions = new Vector2[70];
-        player = GameObject.FindGameObjectWithTag("Player");
+        player = GameObject.FindGameObjectWithTag("player");
         startPosition = transform.position;
         playerPosition = player.transform.position;
         int direction = Random.Range(1, 3);
@@ -30,8 +30,7 @@ public class EnemyBulletScript : MonoBehaviour
             midPositionA = Vector2.Lerp(playerPosition, startPosition, 0.25f) + new Vector2(-50, 0);
             midPositionB = Vector2.Lerp(playerPosition, startPosition, 0.75f) + new Vector2(50, 0);
         }
-
-
+        Destroy(gameObject, 1f);
         StartCoroutine("MoveLocation");
     }
 
@@ -55,11 +54,12 @@ public class EnemyBulletScript : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.tag == "Player")
+        if (other.tag == "player")
         {
-            other.SendMessageUpwards("ApplyHealthChange", -10, SendMessageOptions.DontRequireReceiver);
+            other.SendMessageUpwards("TakeDamage", 0.15f, SendMessageOptions.DontRequireReceiver);
+            Destroy(this.gameObject);
         }
     }
 }

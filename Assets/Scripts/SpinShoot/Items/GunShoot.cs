@@ -5,6 +5,9 @@ using UnityEngine;
 public class GunShoot : MonoBehaviour
 {
     public GameObject bullet;
+    public AudioClip laserPew;
+
+    AudioSource audioSource;
 
     public float bulletSpeed;
 
@@ -21,6 +24,8 @@ public class GunShoot : MonoBehaviour
 
     private void Awake()
     {
+        audioSource = GetComponentInParent<AudioSource>();
+
         parent = this.GetComponentInParent<Transform>();
         cam = Camera.main;
     }
@@ -40,10 +45,14 @@ public class GunShoot : MonoBehaviour
     {
         if (clicked)
         {
+            audioSource.pitch = Random.Range(1f, 1.4f);
+            audioSource.volume = 0.05f;
+            audioSource.PlayOneShot(laserPew);
+
             GameObject b = Instantiate<GameObject>(bullet, transform.position, transform.rotation);
             b.GetComponent<Rigidbody2D>().velocity = (((bulletSpeed*100) * Time.fixedDeltaTime)* dirToClick);
             clicked = false;
-            Destroy(b, 0.5f);
+            Destroy(b, 0.8f);
         }
     }
 }

@@ -8,6 +8,8 @@ TagManager:
   - Shield
   - Enemy
   - Spawn Point
+  - player
+  - EnemyBullet
   layers:
   - Default
   - TransparentFX

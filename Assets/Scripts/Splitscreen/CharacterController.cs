@@ -27,6 +27,15 @@ public class CharacterController : MonoBehaviour
     void Update()
     {
         Movement();
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.ExitPlaymode();
+#endif
+        }
     }
 
     void FixedUpdate()

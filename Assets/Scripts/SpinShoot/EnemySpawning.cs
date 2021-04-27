@@ -1,24 +1,31 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 public class EnemySpawning : MonoBehaviour
 {
     public GameObject enemyPrefab;
     GameObject[] waypoints;
 
-    GameObject player;
+    public GameObject player;
+
+    public Text score;
+    int playerScore = 0;
 
     List<GameObject> enemies;
     public int maxEnemies = 10;
+
+    AudioSource audioSource;
+    public AudioClip[] deathSounds;
 
     public float spawnTimer = 2;
     float timer;
 
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         waypoints = GameObject.FindGameObjectsWithTag("Spawn Point");
-        player = GameObject.FindGameObjectWithTag("Player");
+        player = GameObject.FindGameObjectWithTag("player");
 
         enemies = new List<GameObject>();
     }
@@ -46,7 +53,13 @@ public class EnemySpawning : MonoBehaviour
     public void Kill(GameObject enemy)
     {
         enemies.Remove(enemy);
-        Destroy(enemy);
+
+        playerScore += 10;
+        score.text = "Score: " + playerScore.ToString();
+
+        audioSource.PlayOneShot(deathSounds[Random.Range(0, deathSounds.Length - 1)]);
+
+        Destroy(enemy, 0.5f);
     }
 
     public GameObject GetPlayer()

@@ -16,10 +16,6 @@ public class ShieldBlock : MonoBehaviour
                 Destroy(collision.gameObject);
                 break;
 
-            case "Enemy":
-                //bounce off??
-                break;
-
             default:
                 break;
         }

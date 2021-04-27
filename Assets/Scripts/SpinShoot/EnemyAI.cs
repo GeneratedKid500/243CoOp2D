@@ -4,14 +4,21 @@ using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
+    public Sprite[] ships;
+    int spriteNo;
+
     public int maxHP;
     float currentHP;
 
     public float moveSpeed = 4;
 
     EnemySpawning enemySpawning;
+    public RuntimeAnimatorController rtac;
+    Animator anim;
     GameObject player;
     PlayerManager pM;
+
+    SpriteRenderer sprRen;
 
     Rigidbody2D rb;
 
@@ -19,30 +26,49 @@ public class EnemyAI : MonoBehaviour
     {
         currentHP = maxHP;
         enemySpawning = GetComponentInParent<EnemySpawning>();
+                anim = GetComponent<Animator>();
 
-        player = enemySpawning.GetPlayer();
-        pM = player.GetComponent<PlayerManager>();
+        player = GameObject.FindGameObjectWithTag("player");
+        pM = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerManager>();
 
         transform.parent = null;
 
         rb = GetComponent<Rigidbody2D>();
+
+        sprRen = GetComponent<SpriteRenderer>();
+    }
+
+    void Start()
+    {
+        spriteNo = Random.Range(0, ships.Length);
+        Debug.Log(spriteNo);
+        Debug.Log(ships[spriteNo]);
+        sprRen.sprite = ships[spriteNo];
     }
 
     void FixedUpdate()
     {
-        transform.position = Vector2.MoveTowards(transform.position, player.transform.position, moveSpeed * Time.fixedDeltaTime);
+        sprRen.sprite = ships[spriteNo];
+
+        transform.position = Vector2.MoveTowards(transform.position, player.transform.position, moveSpeed * Time.fixedDeltaTime * (Time.time/100+1));
+
+        var dir = player.transform.position - transform.position;
+        var angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
     }
 
     void TakeDamage(float damage)
     {
+        currentHP -= damage;
+
         if (currentHP <= 0)
-            enemySpawning.Kill(this.gameObject);
-        else
         {
-            currentHP -= damage;
-            if (currentHP <= 0)
-                enemySpawning.Kill(this.gameObject);
+            GetComponent<Collider2D>().enabled = false;
+            anim.runtimeAnimatorController = rtac;
+            anim.Play("Explosion");
+            enemySpawning.Kill(this.gameObject);
         }
+
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -52,16 +78,17 @@ public class EnemyAI : MonoBehaviour
         switch (collision.tag) 
         {
             case "Bullet":
-                TakeDamage(10);
                 Destroy(collision.gameObject);
+                TakeDamage(10);
                 break;
 
             case "Enemy":
                 break;
 
-            case "Player":
+            case "player":
+                Debug.Log("Collided with player");
                 pM.TakeDamage(10);
-                Destroy(this.gameObject);
+                TakeDamage(10);
                 break;
 
             case "Shield":
